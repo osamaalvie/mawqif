@@ -13,7 +13,9 @@ use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
-    private const PAGE = 20;
+    private const PAGE = 20; //no of rows per page
+    private const MAX_INSERT = 20; //no of products can insert in one request
+
     /**
      * Create a new controller instance.
      *
@@ -21,6 +23,7 @@ class ProductController extends Controller
      */
     public function __construct()
     {
+
     }
 
     /**
@@ -40,14 +43,16 @@ class ProductController extends Controller
     }
 
     /**
+     * store products
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      * @throws \Illuminate\Validation\ValidationException
      */
     public function store(Request $request)
     {
+        //validate every product
         $this->validate($request, [
-            'products' => 'required|array|min:1',
+            'products' => 'required|array|min:1|max:' . self::MAX_INSERT,
             'products.*.name' => 'required|max:255',
             'products.*.price' => 'required',
             'products.*.category' => 'required|max:255',
@@ -56,14 +61,19 @@ class ProductController extends Controller
         ]);
 
         $products = $request->get('products');
+
         $data = [];
 
+        //fetch all categories
         $category = Category::query()->get();
 
+        //loop through every product from request
         foreach ($products as $product) {
 
+            //check if category exists
             $category = $category->where('name', $product['category'])->first();
 
+            //category exists so create data for bulk insert
             if ($category) {
                 $product['category_id'] = $category->id;
                 $product['created_at'] = Carbon::now()->toDateTimeString();
@@ -73,10 +83,12 @@ class ProductController extends Controller
             }
         }
 
+        //if bulk insert successfully
         if (Product::query()->insert($data)) {
-            return response()->json(['status' => 'success']);
+            return response()->json(['status' => 'success','message' => 'products inserted successfully']);
         } else {
-            return response()->json(['status' => 'fail']);
+            //send error message
+            return response()->json(['status' => 'fail','message' => 'error while inserting products']);
         }
     }
 
@@ -87,14 +99,16 @@ class ProductController extends Controller
      */
     public function destroy($id, Request $request)
     {
-        try{
+        try {
 
+            //check if product exist otherwise catch exception
             $product = Product::query()->findOrFail($id);
+            //delete if found
             $product->delete();
-            return response()->json(['status' => 'success']);
+            return response()->json(['status' => 'success','message' => 'Product deleted successfully']);
 
-        }catch (\Exception $e){
-            return response()->json(['status' => 'fail','message' => $e->getMessage()]);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'fail', 'message' => $e->getMessage()]);
         }
 
 
