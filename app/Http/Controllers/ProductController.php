@@ -36,7 +36,7 @@ class ProductController extends Controller
             $page = $request->get('page');
         }
 
-        $products = Product::query()->paginate($page);
+        $products = Product::query()->simplePaginate($page);
         return response()->json(['status' => 'success', 'result' => $products]);
     }
 
