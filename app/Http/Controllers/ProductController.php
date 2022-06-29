@@ -51,7 +51,7 @@ class ProductController extends Controller
         //validate every product
         $this->validate($request, [
             'products' => 'required|array|min:1|max:' . MAX_INSERT,
-            'products.*.name' => 'required|max:255',
+            'products.*.name' => 'required|max:255|unique:products',
             'products.*.price' => 'required',
             'products.*.category' => 'required|max:255',
             'products.*.description' => 'sometimes|required',
