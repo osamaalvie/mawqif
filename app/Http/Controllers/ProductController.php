@@ -13,8 +13,6 @@ use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
-    private const PAGE = 20; //no of rows per page
-    private const MAX_INSERT = 20; //no of products can insert in one request
 
     /**
      * Create a new controller instance.
@@ -32,7 +30,7 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        $page = self::PAGE;
+        $page = PAGE_SIZE;
 
         if ($request->has('page')) {
             $page = $request->get('page');
@@ -52,7 +50,7 @@ class ProductController extends Controller
     {
         //validate every product
         $this->validate($request, [
-            'products' => 'required|array|min:1|max:' . self::MAX_INSERT,
+            'products' => 'required|array|min:1|max:' . MAX_INSERT,
             'products.*.name' => 'required|max:255',
             'products.*.price' => 'required',
             'products.*.category' => 'required|max:255',
