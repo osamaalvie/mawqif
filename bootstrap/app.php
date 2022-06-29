@@ -78,7 +78,9 @@ $app->configure('app');
 
  $app->routeMiddleware([
      'auth' => App\Http\Middleware\Authenticate::class,
+     'throttle' => \App\Http\Middleware\ThrottleRequests::class,
  ]);
+
 
 /*
 |--------------------------------------------------------------------------
@@ -91,7 +93,7 @@ $app->configure('app');
 |
 */
 
-// $app->register(App\Providers\AppServiceProvider::class);
+ $app->register(App\Providers\AppServiceProvider::class);
  $app->register(App\Providers\AuthServiceProvider::class);
 // $app->register(App\Providers\EventServiceProvider::class);
 
@@ -108,6 +110,7 @@ $app->configure('app');
 
 $app->router->group([
     'namespace' => 'App\Http\Controllers',
+    'middleware' => 'throttle:global',
 ], function ($router) {
     require __DIR__.'/../routes/web.php';
 });

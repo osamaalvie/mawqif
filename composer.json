@@ -20,7 +20,7 @@
             "Database\\Seeders\\": "database/seeders/"
         },
         "files": [
-            "app/Support/helpers.php"
+            "app/Support/constants.php"
         ]
     },
     "autoload-dev": {
