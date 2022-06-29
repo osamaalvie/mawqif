@@ -56,8 +56,7 @@ class CartController extends Controller
         $identifier = [];
 
         if (Auth::check()) {
-            $rules['user_id'] = $id ? '' : 'required';
-            $identifier['user_id'] = $id ?: $request->get('user_id');
+            $identifier['user_id'] = Auth::user()->id;
         } else {
             $rules['session_id'] = $id ? '' : 'required';
             $identifier['session_id'] = $id ?: $request->get('session_id');
