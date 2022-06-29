@@ -20,6 +20,12 @@ class CartController extends Controller
 
     }
 
+    /**
+     * Get Cart by user_id for authenticated user or session_id for guest user
+     * @param $id
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function index($id, Request $request)
     {
         $column = 'session_id';
@@ -34,6 +40,7 @@ class CartController extends Controller
     }
 
     /**
+     * common function for store and update cart
      * @param Request $request
      * @param $isUpdate
      * @return \Illuminate\Http\JsonResponse
@@ -77,7 +84,8 @@ class CartController extends Controller
         }
 
         if (Cart::query()->insert($data)) {
-            return response()->json(['status' => 'success']);
+            $message = $id ? 'updated' : 'inserted';
+            return response()->json(['status' => 'success', 'message' => "Cart is $message successfully"]);
         } else {
             return response()->json(['status' => 'fail']);
         }
@@ -85,6 +93,7 @@ class CartController extends Controller
 
 
     /**
+     * create new cart
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      * @throws \Illuminate\Validation\ValidationException
@@ -95,6 +104,7 @@ class CartController extends Controller
     }
 
     /**
+     * update cart
      * @param $id
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
@@ -106,6 +116,7 @@ class CartController extends Controller
     }
 
     /**
+     * delete an existing cart by session id or user id
      * @param $id
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
@@ -114,15 +125,17 @@ class CartController extends Controller
     {
         try {
 
+            //check if user is authenticated user
             if (Auth::check()) {
                 $identifier['user_id'] = $id;
             } else {
                 $identifier['session_id'] = $id;
             }
 
+            //delete cart by session id or user id
             Cart::query()->where(key($identifier), $id)->delete();
 
-            return response()->json(['status' => 'success']);
+            return response()->json(['status' => 'success', 'message' => 'Cart is deleted successfully']);
 
         } catch (\Exception $e) {
             return response()->json(['status' => 'fail', 'message' => $e->getMessage()]);

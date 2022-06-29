@@ -26,13 +26,16 @@ class UserController extends Controller
      */
     public function authenticate(Request $request)
     {
+        //validate user via email and password
         $this->validate($request, [
             'email' => 'required',
             'password' => 'required'
         ]);
 
+        //find user with email from database
         $user = User::where('email', $request->input('email'))->first();
 
+        //check if password matches
         if (Hash::check($request->input('password'), $user->password)) {
             $api_token = base64_encode(Str::random(40));
             User::where('email', $request->input('email'))->update(['api_token' => $api_token]);
