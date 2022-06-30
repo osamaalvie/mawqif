@@ -53,8 +53,8 @@ class CartController extends Controller
         //rules for validation
         $rules = [
             'products' => 'required|array|min:1', //required and minimum one product
-            'products.*.product_id' => 'required', //required
-            'products.*.qty' => 'required', //required
+            'products.*.product_id' => 'required|integer', //required
+            'products.*.qty' => 'required|integer', //required
         ];
         $identifier = []; //for dynamic column session_id in case of Guest user or user_id in case of Autheticated user
 
