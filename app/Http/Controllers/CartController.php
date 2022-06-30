@@ -92,7 +92,7 @@ class CartController extends Controller
             $message = $id ? 'updated' : 'inserted';
             return response()->json(['status' => 'success', 'message' => "Cart is $message successfully"]);
         } else {
-            return response()->json(['status' => 'fail']);
+            return response()->json(['status' => 'fail','message' => 'error while inserting']);
         }
     }
 
@@ -101,11 +101,16 @@ class CartController extends Controller
      * create new cart
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
-     * @throws \Illuminate\Validation\ValidationException
      */
     public function store(Request $request)
     {
-        return $this->addAndUpdateCart($request);
+        try{
+            return $this->addAndUpdateCart($request);
+        }catch (\Exception $e){
+            return response()->json(['status' => 'fail','message' => $e->getMessage()]);
+
+        }
+
     }
 
     /**
@@ -117,7 +122,11 @@ class CartController extends Controller
      */
     public function update($id, Request $request)
     {
-        return $this->addAndUpdateCart($request, $id);
+        try{
+            return $this->addAndUpdateCart($request, $id);
+        }catch (\Exception $e){
+            return response()->json(['status' => 'fail','message' => $e->getMessage()]);
+        }
     }
 
     /**
