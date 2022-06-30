@@ -28,12 +28,14 @@ class CartController extends Controller
      */
     public function index($id, Request $request)
     {
-        $column = 'session_id';
+        $column = 'session_id'; //for dynamic column session_id in case of Guest user or user_id in case of Autheticated user
 
+        //check if user is authenticated
         if (Auth::check()) {
             $column = 'user_id';
         }
 
+        //fetch cart details
         $cart = Cart::query()->where($column, $id)->get();
 
         return response()->json(['status' => 'success', 'result' => $cart]);
@@ -48,30 +50,33 @@ class CartController extends Controller
      */
     public function addAndUpdateCart(Request $request, $id = null)
     {
+        //rules for validation
         $rules = [
-            'products' => 'required|array|min:1',
-            'products.*.product_id' => 'required',
-            'products.*.qty' => 'required',
+            'products' => 'required|array|min:1', //required and minimum one product
+            'products.*.product_id' => 'required', //required
+            'products.*.qty' => 'required', //required
         ];
-        $identifier = [];
+        $identifier = []; //for dynamic column session_id in case of Guest user or user_id in case of Autheticated user
 
+        //check if user is authenticated
         if (Auth::check()) {
             $identifier['user_id'] = Auth::user()->id;
         } else {
-            $rules['session_id'] = $id ? '' : 'required';
+            $rules['session_id'] = $id ? '' : 'required'; //$id wil exists in case of update
             $identifier['session_id'] = $id ?: $request->get('session_id');
         }
 
         $this->validate($request, $rules);
 
-        $products = $request->get('products');
+        $products = $request->get('products'); //fetch all products from request
 
         $data = [];
 
-        if ($id) {
+        if ($id) { //if id exists in case of update delete the cart first
             Cart::query()->where(key($identifier), $identifier[key($identifier)])->delete();
         }
 
+        //prepare bulk data for cart
         foreach ($products as $product) {
             $data[] = [
                 key($identifier) => $identifier[key($identifier)],
@@ -82,6 +87,7 @@ class CartController extends Controller
             ];
         }
 
+        //insert data in carts table
         if (Cart::query()->insert($data)) {
             $message = $id ? 'updated' : 'inserted';
             return response()->json(['status' => 'success', 'message' => "Cart is $message successfully"]);
