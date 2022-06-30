@@ -23,6 +23,7 @@ $router->group(['prefix' => 'api'], function () use ($router) {
     $router->group(['middleware' => 'auth'], function () use ($router) {
         $router->get('products/', 'ProductController@index');
         $router->post('products/', 'ProductController@store');
+        $router->post('products/{id}', 'ProductController@details');
         $router->delete('products/{id}', 'ProductController@destroy');
     });
 

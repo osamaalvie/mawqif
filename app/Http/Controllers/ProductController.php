@@ -41,6 +41,22 @@ class ProductController extends Controller
     }
 
     /**
+     * fetch single product details
+     * @param $id
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function details($id, Request $request){
+        try{
+            $product = Product::query()->findOrFail($id);
+
+            return response()->json(['status' => 'success', 'result' => $product]);
+        }catch (\Exception $e){
+            return response()->json(['status' => 'success', 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
      * store products
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
