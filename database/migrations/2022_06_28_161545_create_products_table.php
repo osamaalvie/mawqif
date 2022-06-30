@@ -18,7 +18,7 @@ return new class extends Migration {
             $table->decimal('price', 9, 3);
             $table->unsignedBigInteger('category_id');
             $table->text('description')->nullable();
-            $table->string('avatar');
+            $table->string('avatar')->nullable();
             $table->timestamps();
         });
 
