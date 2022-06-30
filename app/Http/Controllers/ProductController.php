@@ -64,46 +64,51 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        //validate every product
-        $this->validate($request, [
-            'products' => 'required|array|min:1|max:' . MAX_INSERT,
-            'products.*.name' => 'required|max:255|unique:products',
-            'products.*.price' => 'required',
-            'products.*.category' => 'required|max:255',
-            'products.*.description' => 'sometimes|required',
-            'products.*.avatar' => 'sometimes|required|url'
-        ]);
+        try{
+            //validate every product
+            $this->validate($request, [
+                'products' => 'required|array|min:1|max:' . MAX_INSERT,
+                'products.*.name' => 'required|max:255|unique:products',
+                'products.*.price' => 'required',
+                'products.*.category' => 'required|max:255',
+                'products.*.description' => 'sometimes|required',
+                'products.*.avatar' => 'sometimes|required|url'
+            ]);
 
-        $products = $request->get('products');
+            $products = $request->get('products');
 
-        $data = [];
+            $data = [];
 
-        //fetch all categories
-        $category = Category::query()->get();
+            //fetch all categories
+            $category = Category::query()->get();
 
-        //loop through every product from request
-        foreach ($products as $product) {
+            //loop through every product from request
+            foreach ($products as $product) {
 
-            //check if category exists
-            $category = $category->where('name', $product['category'])->first();
+                //check if category exists
+                $category = $category->where('name', $product['category'])->first();
 
-            //category exists so create data for bulk insert
-            if ($category) {
-                $product['category_id'] = $category->id;
-                $product['created_at'] = Carbon::now()->toDateTimeString();
-                $product['updated_at'] = Carbon::now()->toDateTimeString();
-                unset($product['category']);
-                $data[] = $product;
+                //category exists so create data for bulk insert
+                if ($category) {
+                    $product['category_id'] = $category->id;
+                    $product['created_at'] = Carbon::now()->toDateTimeString();
+                    $product['updated_at'] = Carbon::now()->toDateTimeString();
+                    unset($product['category']);
+                    $data[] = $product;
+                }
             }
+
+            //if bulk insert successfully
+            if (Product::query()->insert($data)) {
+                return response()->json(['status' => 'success','message' => 'products inserted successfully']);
+            } else {
+                //send error message
+                return response()->json(['status' => 'fail','message' => 'error while inserting products']);
+            }
+        }catch (\Exception $e){
+            return response()->json(['status' => 'fail','message' => $e->getMessage()]);
         }
 
-        //if bulk insert successfully
-        if (Product::query()->insert($data)) {
-            return response()->json(['status' => 'success','message' => 'products inserted successfully']);
-        } else {
-            //send error message
-            return response()->json(['status' => 'fail','message' => 'error while inserting products']);
-        }
     }
 
     /**
